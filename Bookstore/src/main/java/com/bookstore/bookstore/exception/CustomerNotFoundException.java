@@ -8,6 +8,8 @@ package com.bookstore.bookstore.exception;
  *
  * @author ASUS
  */
-public class CustomerNotFoundException {
-    
+public class CustomerNotFoundException extends RuntimeException {
+    public CustomerNotFoundException(Integer id) {
+        super("Customer with ID " + id + " not found.");
+    }
 }
