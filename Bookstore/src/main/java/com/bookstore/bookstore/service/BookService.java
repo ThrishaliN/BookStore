@@ -33,7 +33,7 @@ public class BookService {
     }
 
     // Get a book by ID
-    public Book getBookById(Integer id) {
+    public Book getBookById(int id) {
         Optional<Book> found = books.stream()
                 .filter(book -> Objects.equals(book.getId(), id))
                 .findFirst();
@@ -60,6 +60,16 @@ public class BookService {
     // Delete a book by ID
     public boolean deleteBook(Integer id) {
         return books.removeIf(book -> Objects.equals(book.getId(), id));
+    }
+    // Get all books by a specific author ID
+    public List<Book> getBooksByAuthorId(Integer authorId) {
+        List<Book> result = new ArrayList<>();
+        for (Book book : books) {
+            if (Objects.equals(book.getAuthorId(), authorId)) {
+                result.add(book);
+            }
+        }
+        return result;
     }
 }
 

@@ -8,6 +8,6 @@ package com.bookstore.bookstore.resources;
  *
  * @author ASUS
  */
-public class CartResources {
+public class OrderResource {
     
 }
