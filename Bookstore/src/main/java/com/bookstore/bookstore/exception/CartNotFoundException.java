@@ -8,6 +8,9 @@ package com.bookstore.bookstore.exception;
  *
  * @author ASUS
  */
-public class CartNotFoundException {
-    
+public class CartNotFoundException extends RuntimeException {
+    public CartNotFoundException(Integer customerId) {
+        super("Cart not found for customer with ID: " + customerId);
+    }
 }
+

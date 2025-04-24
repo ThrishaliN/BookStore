@@ -65,11 +65,20 @@ public class Cart {
             }
         }
     }
+    public CartItem getItem(int bookId) {
+        for (CartItem item : items) {
+            if (item.getBookId() == bookId) {
+                return item;
+            }
+        }
+        return null;
+    }
 
     // Clear the cart
     public void clear() {
         items.clear();
     }
+
 }
 
 

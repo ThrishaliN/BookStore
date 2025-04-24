@@ -22,7 +22,7 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class BookResource {
 
-    private BookService bookService = new BookService();
+    private final BookService bookService = new BookService();
 
     @POST
     public Response addBook(Book book) {

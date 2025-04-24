@@ -4,7 +4,6 @@
  */
 package com.bookstore.bookstore.service;
 import com.bookstore.bookstore.model.Book;
-import com.bookstore.bookstore.exception.BookNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class BookService {
 
-    private static List<Book> books = new ArrayList<>();
-    private static AtomicInteger idCounter = new AtomicInteger(1);
+    private static final List<Book> books = new ArrayList<>();
+    private static final AtomicInteger idCounter = new AtomicInteger(1);
 
     // Add a new book
     public Book addBook(Book book) {
