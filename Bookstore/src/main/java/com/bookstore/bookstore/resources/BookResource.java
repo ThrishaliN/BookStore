@@ -46,12 +46,11 @@ public class BookResource {
     @GET
     @Path("/{id}")
     public Response getBookById(@PathParam("id") Integer id) {
-        Book book = bookService.getBookById(id);
-        if (book == null) {
-            throw new BookNotFoundException("Book with ID " + id + " not found.");
-        }
+        Book book = bookService.getBookById(id)
+                .orElseThrow(() -> new BookNotFoundException("Book with ID " + id + " not found."));
         return Response.ok(book).build();
-    }
+}
+
 
     @PUT
     @Path("/{id}")

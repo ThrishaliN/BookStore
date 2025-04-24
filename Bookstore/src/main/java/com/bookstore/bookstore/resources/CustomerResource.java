@@ -29,7 +29,7 @@ public class CustomerResource {
     private static final Logger LOGGER = Logger.getLogger(CustomerResource.class.getName());
 
     @Inject
-    private CustomerService customerService;
+    CustomerService customerService;
 
     // POST /customers
     @POST

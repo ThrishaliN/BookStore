@@ -32,13 +32,12 @@ public class BookService {
     }
 
     // Get a book by ID
-    public Book getBookById(int id) {
-        Optional<Book> found = books.stream()
-                .filter(book -> Objects.equals(book.getId(), id))
-                .findFirst();
+    public Optional<Book> getBookById(int id) {
+        return books.stream()
+           .filter(book -> Objects.equals(book.getId(), id))
+           .findFirst();
+}
 
-        return found.orElse(null); // let resource throw exception if null
-    }
 
     // Update a book by ID
     public Book updateBook(Integer id, Book updatedBook) {

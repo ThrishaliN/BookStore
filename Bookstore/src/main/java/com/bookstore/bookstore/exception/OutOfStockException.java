@@ -9,8 +9,13 @@ package com.bookstore.bookstore.exception;
  * @author ASUS
  */
 public class OutOfStockException extends RuntimeException {
+    public OutOfStockException(String message) {
+        super(message);
+    }
+
     public OutOfStockException(int bookId) {
         super("Book with ID " + bookId + " is out of stock.");
     }
 }
+
 

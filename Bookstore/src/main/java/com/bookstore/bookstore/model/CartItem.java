@@ -9,6 +9,7 @@ package com.bookstore.bookstore.model;
  * @author ASUS
  */
 public class CartItem {
+    private Book book;
     private int bookId;
     private int quantity;
 
@@ -26,6 +27,14 @@ public class CartItem {
     public int getQuantity() {
         return quantity;
     }
+    public Book getBook() {
+        return book;
+    }
+
+    public void setBook(Book book) {
+        this.book = book;
+    }
+
 
     public void setBookId(int bookId) {
         this.bookId = bookId;

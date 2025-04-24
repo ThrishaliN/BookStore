@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 public class CartResource {
 
     @Inject
-    CartService cartService;
+    private CartService cartService;
 
     // POST /customers/{customerId}/cart/items - Add item to cart
     @POST

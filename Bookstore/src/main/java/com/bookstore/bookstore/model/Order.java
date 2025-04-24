@@ -4,28 +4,28 @@
  */
 package com.bookstore.bookstore.model;
 
-/**
- *
- * @author ASUS
- */
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class Order {
     private int id;
-    private int customerId;
-    private LocalDate orderDate;
+    private Customer customer;
+    private List<CartItem> items;
+    private LocalDateTime orderDate;
     private double totalAmount;
-    private String status; 
+    private String status;
 
     // Default constructor
     public Order() {}
 
-    public Order(int id, int customerId, LocalDate orderDate, double totalAmount, String status) {
+    // Full constructor
+    public Order(int id, Customer customer, List<CartItem> items, LocalDateTime orderDate, double totalAmount) {
         this.id = id;
-        this.customerId = customerId;
+        this.customer = customer;
+        this.items = items;
         this.orderDate = orderDate;
         this.totalAmount = totalAmount;
-        this.status = status;
+        this.status = status; 
     }
 
     // Getters and setters
@@ -37,19 +37,27 @@ public class Order {
         this.id = id;
     }
 
-    public int getCustomerId() {
-        return customerId;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setCustomerId(int customerId) {
-        this.customerId = customerId;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
-    public LocalDate getOrderDate() {
+    public List<CartItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<CartItem> items) {
+        this.items = items;
+    }
+
+    public LocalDateTime getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(LocalDate orderDate) {
+    public void setOrderDate(LocalDateTime orderDate) {
         this.orderDate = orderDate;
     }
 
