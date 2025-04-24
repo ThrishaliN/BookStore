@@ -1,0 +1,65 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.bookstore.bookstore.service;
+import com.bookstore.bookstore.model.Book;
+import com.bookstore.bookstore.exception.BookNotFoundException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+/**
+ *
+ * @author ASUS
+ */
+public class BookService {
+
+    private static List<Book> books = new ArrayList<>();
+    private static AtomicInteger idCounter = new AtomicInteger(1);
+
+    // Add a new book
+    public Book addBook(Book book) {
+        book.setId(idCounter.getAndIncrement());
+        books.add(book);
+        return book;
+    }
+
+    // Get all books
+    public List<Book> getAllBooks() {
+        return books;
+    }
+
+    // Get a book by ID
+    public Book getBookById(Integer id) {
+        Optional<Book> found = books.stream()
+                .filter(book -> Objects.equals(book.getId(), id))
+                .findFirst();
+
+        return found.orElse(null); // let resource throw exception if null
+    }
+
+    // Update a book by ID
+    public Book updateBook(Integer id, Book updatedBook) {
+        for (Book book : books) {
+            if (Objects.equals(book.getId(), id)) {
+                book.setTitle(updatedBook.getTitle());
+                book.setAuthorId(updatedBook.getAuthorId());
+                book.setIsbn(updatedBook.getIsbn());
+                book.setPublicationYear(updatedBook.getPublicationYear());
+                book.setPrice(updatedBook.getPrice());
+                book.setStock(updatedBook.getStock());
+                return book;
+            }
+        }
+        return null; // let resource throw exception
+    }
+
+    // Delete a book by ID
+    public boolean deleteBook(Integer id) {
+        return books.removeIf(book -> Objects.equals(book.getId(), id));
+    }
+}
+

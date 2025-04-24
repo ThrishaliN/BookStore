@@ -9,7 +9,7 @@ package com.bookstore.bookstore.model;
  * @author ASUS
  */
 public class Book {
-    private int bookId;
+    private int id;
     private String title;
     private int authorId;
     private String isbn;
@@ -19,8 +19,8 @@ public class Book {
 
     public Book() {}
 
-    public Book(int bookId, String title, int authorId, String isbn, int publicationYear, double price, int stock) {
-        this.bookId = bookId;
+    public Book(int id, String title, int authorId, String isbn, int publicationYear, double price, int stock) {
+        this.id = id;
         this.title = title;
         this.authorId = authorId;
         this.isbn = isbn;
@@ -31,11 +31,11 @@ public class Book {
 
     // Getters and setters
     public int getId() {
-        return bookId;
+        return id;
     }
 
-    public void setId(int bookId) {
-        this.bookId = bookId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {
