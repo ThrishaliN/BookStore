@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.bookstore.bookstore.exeption.mappers;
+package com.bookstore.bookstore.exception.mappers;
 
 /**
  *
@@ -10,25 +10,29 @@ package com.bookstore.bookstore.exeption.mappers;
  */
 import com.bookstore.bookstore.exception.AuthorNotFoundException;
 
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import javax.json.Json;
-import javax.json.JsonObject;
+import java.util.HashMap;
+import java.util.Map;
+import javax.ws.rs.core.MediaType;
 
 @Provider
 public class AuthorNotFoundExceptionMapper implements ExceptionMapper<AuthorNotFoundException> {
 
     @Override
-    public Response toResponse(AuthorNotFoundException exception) {
-        JsonObject json = Json.createObjectBuilder()
-                .add("error", "Author Not Found")
-                .add("message", exception.getMessage())
-                .build();
+    public Response toResponse(AuthorNotFoundException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "author Not Found");
+        errorResponse.put("message", ex.getMessage());
 
         return Response.status(Response.Status.NOT_FOUND)
-                .entity(json)
-                .build();
+                       .entity(errorResponse)
+                       .type(MediaType.APPLICATION_JSON)
+                       .build();
     }
 }
+
+
 
