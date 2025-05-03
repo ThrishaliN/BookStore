@@ -4,109 +4,114 @@
  */
 package com.bookstore.bookstore.service;
 
-/**
- *
- * @author ASUS
- */
-
+import com.bookstore.bookstore.model.Book;
 import com.bookstore.bookstore.model.Cart;
 import com.bookstore.bookstore.model.CartItem;
-import com.bookstore.bookstore.model.Book;
 import com.bookstore.bookstore.exception.CartNotFoundException;
+import com.bookstore.bookstore.exception.InvalidInputException;
 import com.bookstore.bookstore.exception.OutOfStockException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-@ApplicationScoped
 public class CartService {
 
-    private final Map<Integer, Cart> cartDatabase = new HashMap<>();
+    private static final Map<Integer, Cart> cartMap = new HashMap<>();
 
-    @Inject
-    BookService bookService;
+    private final CustomerService customerService = new CustomerService();
 
-    // Add item to a customer's cart
-    public Cart addItem(Integer customerId, CartItem item) {
-        Cart cart = cartDatabase.computeIfAbsent(customerId, k -> new Cart(customerId));
+    public Cart addItemToCart(int customerId, CartItem item) throws InvalidInputException {
+        validateCustomer(customerId);
+        validateQuantity(item.getQuantity());
 
-        Book book = bookService.getBookById(item.getBookId())
-                .orElseThrow(() -> new RuntimeException("Book not found"));
-
-
-        // Check stock availability
-        if (book.getStock() < item.getQuantity()) {
-            throw new OutOfStockException(book.getId());
+        Book book = BookService.getBookById(item.getBookId());
+        if (book == null) {
+            throw new InvalidInputException("Book not found.");
+        }
+        if (item.getQuantity() > book.getStock()) {
+            throw new InvalidInputException("Insufficient stock.");
         }
 
-        // Add item to cart
-        cart.addItem(item);
+        Cart cart = cartMap.computeIfAbsent(customerId, Cart::new);
+
+        CartItem existingItem = cart.getItem(item.getBookId());
+        if (existingItem != null) {
+            int totalQty = existingItem.getQuantity() + item.getQuantity();
+            if (totalQty > book.getStock()) {
+                throw new OutOfStockException("Not enough stock to update item.");
+            }
+            existingItem.setQuantity(totalQty);
+        } else {
+            item.setBook(book);
+            cart.addItem(item);
+        }
+
         return cart;
+    }
+
+    public Cart getCart(int customerId) throws InvalidInputException {
+        validateCustomer(customerId);
+
+        // Always return a cart (even if empty) instead of throwing
+        return cartMap.computeIfAbsent(customerId, Cart::new);
     }
     
-     // Get cart directly and throw if not found
-    public Cart getCart(Integer customerId) {
-        Cart cart = cartDatabase.get(customerId);
-        if (cart == null) {
-            throw new CartNotFoundException(customerId);
+
+    public Cart updateItemQuantity(int customerId, int bookId, int newQuantity) throws InvalidInputException, CartNotFoundException {
+        validateCustomer(customerId);
+        validateQuantity(newQuantity);
+
+        Book book = BookService.getBookById(bookId);
+        if (book == null) {
+            throw new InvalidInputException("Book not found.");
         }
-        return cart;
-    }
-
-    // Get the cart for a specific customer (Optional wrapper)
-    public Optional<Cart> getCartByCustomerId(Integer customerId) {
-        return Optional.ofNullable(cartDatabase.get(customerId));
-    }
-
-    // Update item quantity in the cart
-    public Cart updateItemQuantity(Integer customerId, Integer bookId, int quantity) {
-        Cart cart = cartDatabase.get(customerId);
-        if (cart == null) {
-            throw new CartNotFoundException(customerId);
+        if (newQuantity > book.getStock()) {
+            throw new InvalidInputException("Insufficient stock.");
         }
 
-        // Check if the cart contains the item
+        Cart cart = cartMap.get(customerId);
+        if (cart == null) {
+            throw new CartNotFoundException("Cart not found for customer ID: " + customerId);
+        }
+
         CartItem item = cart.getItem(bookId);
         if (item == null) {
-            throw new RuntimeException("Item not found in the cart");
+            throw new InvalidInputException("Item not found in cart.");
         }
 
-        // Check stock availability
-        Book book = bookService.getBookById(bookId)
-            .orElseThrow(() -> new RuntimeException("Book not found"));
-
-        if (book.getStock() < quantity) {
-            throw new OutOfStockException(book.getId());
-        }
-
-       // Update the item quantity
-        item.setQuantity(quantity);
+        item.setQuantity(newQuantity);
         return cart;
     }
 
-    // Remove item from the cart
-    public void removeItem(Integer customerId, Integer bookId) {
-        Cart cart = cartDatabase.get(customerId);
+    public void removeItem(int customerId, int bookId) throws InvalidInputException, CartNotFoundException {
+        validateCustomer(customerId);
+
+        Cart cart = cartMap.get(customerId);
         if (cart == null) {
-            throw new CartNotFoundException(customerId);
+            throw new CartNotFoundException("Cart not found for customer ID: " + customerId);
         }
 
-        // Remove the item from the cart
+        CartItem item = cart.getItem(bookId);
+        if (item == null) {
+            throw new InvalidInputException("Item not found in cart.");
+        }
+
         cart.removeItem(bookId);
     }
 
-    // Clear the entire cart for a customer
-    public void clearCart(Integer customerId) {
-        Cart cart = cartDatabase.get(customerId);
-        if (cart == null) {
-            throw new CartNotFoundException(customerId);
+    private void validateCustomer(int customerId) throws InvalidInputException {
+        customerService.getCustomerById(customerId)
+                .orElseThrow(() -> new InvalidInputException("Customer not found with ID: " + customerId));
+    }
+
+    private void validateQuantity(int quantity) throws InvalidInputException {
+        if (quantity <= 0) {
+            throw new InvalidInputException("Quantity must be greater than zero.");
         }
-        cart.clear();
     }
 }
+
+
 
 
 
