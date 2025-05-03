@@ -7,7 +7,6 @@ import com.bookstore.bookstore.model.Book;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 /**
@@ -32,11 +31,14 @@ public class BookService {
     }
 
     // Get a book by ID
-    public Optional<Book> getBookById(int id) {
-        return books.stream()
-           .filter(book -> Objects.equals(book.getId(), id))
-           .findFirst();
-}
+    public static Book getBookById(int id) {
+        for (Book book : books) {
+            if (Objects.equals(book.getId(), id)) {
+                return book;
+            }
+        }
+        return null;
+    }
 
 
     // Update a book by ID
