@@ -6,12 +6,12 @@ package com.bookstore.bookstore.model;
 
 /**
  *
- * @author ASUS
+ * @author ASUSS
  */
 public class Book {
     private int id;
     private String title;
-    private int authorId;
+    private Integer authorId;
     private String isbn;
     private int publicationYear;
     private double price;
@@ -19,7 +19,7 @@ public class Book {
 
     public Book() {}
 
-    public Book(int id, String title, int authorId, String isbn, int publicationYear, double price, int stock) {
+    public Book(int id, String title, Integer authorId, String isbn, int publicationYear, double price, int stock) {
         this.id = id;
         this.title = title;
         this.authorId = authorId;
@@ -46,11 +46,11 @@ public class Book {
         this.title = title;
     }
 
-    public int getAuthorId() {
+    public Integer getAuthorId() {
         return authorId;
     }
 
-    public void setAuthorId(int authorId) {
+    public void setAuthorId(Integer authorId) {
         this.authorId = authorId;
     }
 
