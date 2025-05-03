@@ -4,6 +4,7 @@
  */
 package com.bookstore.bookstore.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,15 +12,18 @@ public class Order {
     private int id;
     private Customer customer;
     private List<CartItem> items;
-    private LocalDateTime orderDate;
     private double totalAmount;
     private String status;
+    
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime orderDate;
+    
 
     // Default constructor
     public Order() {}
 
     // Full constructor
-    public Order(int id, Customer customer, List<CartItem> items, LocalDateTime orderDate, double totalAmount) {
+    public Order(int id, Customer customer,List<CartItem> items, LocalDateTime orderDate, double totalAmount,String status) {
         this.id = id;
         this.customer = customer;
         this.items = items;
