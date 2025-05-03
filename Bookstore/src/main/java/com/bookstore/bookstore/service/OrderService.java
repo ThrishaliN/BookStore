@@ -8,96 +8,99 @@ package com.bookstore.bookstore.service;
  *
  * @author ASUS
  */
-import com.bookstore.bookstore.exception.*;
-import com.bookstore.bookstore.model.*;
 
+import com.bookstore.bookstore.exception.CartNotFoundException;
+import com.bookstore.bookstore.exception.CustomerNotFoundException;
+import com.bookstore.bookstore.exception.InvalidInputException;
+import com.bookstore.bookstore.model.Cart;
+import com.bookstore.bookstore.model.CartItem;
+import com.bookstore.bookstore.model.Customer;
+import com.bookstore.bookstore.model.Order;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-@ApplicationScoped
 public class OrderService {
 
-    private static final Logger LOGGER = Logger.getLogger(OrderService.class.getName());
+    private static final List<Order> orders = new ArrayList<>();
+    private static final AtomicInteger orderIdCounter = new AtomicInteger(1);
 
-    private final Map<Integer, Order> orderStore = new HashMap<>();
-    private final AtomicInteger orderIdCounter = new AtomicInteger(1);
-
-    private final CustomerService customerService = new CustomerService();
     private final CartService cartService = new CartService();
-    private final BookService bookService = new BookService();
+    private final CustomerService customerService = new CustomerService();
 
-    public Order createOrder(Integer customerId) {
-        Customer customer = customerService.getCustomerById(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException(customerId));
-
-        Cart cart = cartService.getCartByCustomerId(customerId)
-                .orElseThrow(() -> new CartNotFoundException(customerId));
-
-        if (cart.getItems().isEmpty()) {
-            throw new InvalidInputException("Cart is empty. Cannot place order.");
+    // Place a new order
+    public Order placeOrder(int customerId) {
+        if (customerId <= 0) {
+            throw new InvalidInputException("Customer ID must be a positive number.");
         }
 
-        double total = 0.0;
-        for (CartItem item : cart.getItems()) {
-            Book book = bookService.getBookById(item.getBookId())
-                    .orElseThrow(() -> new BookNotFoundException(String.valueOf(item.getBookId())));
+        Customer customer = customerService.getCustomerById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with ID: " + customerId));
 
+        Cart cart = cartService.getCart(customerId);
+        if (cart == null || cart.getItems().isEmpty()) {
+            throw new CartNotFoundException("Cart is empty or not found.");
+        }
 
-            if (book.getStock() < item.getQuantity()) {
-                throw new OutOfStockException("Book '" + book.getTitle() + "' is out of stock.");
+        double totalAmount = 0.0;
+
+        // Check stock and prepare order items
+        for (CartItem cartItem : cart.getItems()) {
+            if (cartItem.getQuantity() > cartItem.getBook().getStock()) {
+                throw new InvalidInputException("Insufficient stock for book ID: " + cartItem.getBook().getId());
             }
 
-            book.setStock(book.getStock() - item.getQuantity());
-            item.setBook(book); // Optional: set book info into item for order history
-            total += book.getPrice() * item.getQuantity();
+            // Deduct stock
+            cartItem.getBook().setStock(cartItem.getBook().getStock() - cartItem.getQuantity());
+            totalAmount += cartItem.getQuantity() * cartItem.getBook().getPrice();
         }
 
-        Order order = new Order(
-                orderIdCounter.getAndIncrement(),
-                customer,
-                new ArrayList<>(cart.getItems()),
-                LocalDateTime.now(),
-                total
-        );
+        // Create new order
+        Order newOrder = new Order();
+        newOrder.setId(orderIdCounter.getAndIncrement());
+        newOrder.setCustomer(customer);
+        newOrder.setTotalAmount(totalAmount);
+        newOrder.setOrderDate(LocalDateTime.now());
 
-        orderStore.put(order.getId(), order);
-        cartService.clearCart(customerId);
+        // Set status 
+        newOrder.setStatus("Pending");
+        
+        // Create a deep copy of the cart items
+        List<CartItem> copiedItems = new ArrayList<>();
+        for (CartItem item : cart.getItems()) {
+            CartItem copy = new CartItem();
+            copy.setBook(item.getBook()); // If needed, you can copy more safely
+            copy.setBookId(item.getBookId());
+            copy.setQuantity(item.getQuantity());
+            copiedItems.add(copy);
+        }
 
-        LOGGER.log(Level.INFO, "Order created: {0} for customer {1}", new Object[]{order.getId(), customerId});
-        return order;
+        newOrder.setItems(copiedItems); // Now setting a copy, not the original cart list
+
+        
+        orders.add(newOrder);
+
+        // Clear the cart after placing the order
+        cart.getItems().clear();
+
+        return newOrder;
     }
 
-    public List<Order> getOrdersByCustomerId(Integer customerId) {
-        customerService.getCustomerById(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException(customerId));
-
-        List<Order> orders = new ArrayList<>();
-        for (Order order : orderStore.values()) {
-            if (order.getCustomer().getId() == customerId) {
- 
-                orders.add(order);
-            }
-        }
+    // Get all orders
+    public List<Order> getAllOrders() {
         return orders;
     }
 
-    public Order getOrderById(Integer customerId, Integer orderId) {
-        customerService.getCustomerById(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException(customerId));
+    // Get order by ID
+    public Optional<Order> getOrderById(int orderId) {
+        return orders.stream()
+                .filter(order -> order.getId() == orderId)
+                .findFirst();
+    }
 
-        Order order = orderStore.get(orderId);
-
-        if (order == null || order.getCustomer().getId() != customerId) {
-            throw new InvalidInputException("Order not found for customer ID " + customerId + " and order ID " + orderId);
-}
-
-
-        return order;
+    // Check if a customer exists
+    public boolean doesCustomerExist(int customerId) {
+        return customerService.getCustomerById(customerId).isPresent();
     }
 }
-
