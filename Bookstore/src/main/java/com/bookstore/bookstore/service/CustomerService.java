@@ -4,58 +4,46 @@
  */
 package com.bookstore.bookstore.service;
 
-/**
- *
- * @author ASUS
- */
 import com.bookstore.bookstore.model.Customer;
-import com.bookstore.bookstore.exception.CustomerNotFoundException;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@ApplicationScoped
 public class CustomerService {
 
-    private final Map<Integer, Customer> customerDB = new HashMap<>();
-    private final AtomicInteger idCounter = new AtomicInteger(1);
+    private static final Map<Integer, Customer> customers = new HashMap<>();
+    private static final AtomicInteger idCounter = new AtomicInteger(1);
 
-    // Create a customer
-    public Customer createCustomer(Customer customer) {
+    public Customer addCustomer(Customer customer) {
         int id = idCounter.getAndIncrement();
         customer.setId(id);
-        customerDB.put(id, customer);
+        customers.put(id, customer);
         return customer;
     }
 
-    // Retrieve all customers
     public List<Customer> getAllCustomers() {
-        return new ArrayList<>(customerDB.values());
+        return new ArrayList<>(customers.values());
     }
 
-    // Retrieve customer by ID
-    public Optional<Customer> getCustomerById(Integer id) {
-        return Optional.ofNullable(customerDB.get(id));
+    public Optional<Customer> getCustomerById(int id) {
+        return Optional.ofNullable(customers.get(id));
     }
 
-    
-
-    // Update customer
-    public Customer updateCustomer(Integer id, Customer updatedCustomer) {
-        if (!customerDB.containsKey(id)) {
-            throw new CustomerNotFoundException(id);
-        }
-        updatedCustomer.setId(id);
-        customerDB.put(id, updatedCustomer);
-        return updatedCustomer;
+    public Optional<Customer> updateCustomer(int id, Customer updatedCustomerData) {
+    if (updatedCustomerData == null) {
+        System.out.println("updateCustomer called with null customer data!");
+        return Optional.empty();
     }
 
-    // Delete customer
-    public void deleteCustomer(Integer id) {
-        if (customerDB.remove(id) == null) {
-            throw new CustomerNotFoundException(id);
-        }
-    }
+    return Optional.ofNullable(customers.get(id))
+            .map(existingCustomer -> {
+                updatedCustomerData.setId(id);
+                customers.put(id, updatedCustomerData);
+                return updatedCustomerData;
+            });
 }
 
+    public boolean deleteCustomer(int id) {
+        return customers.remove(id) != null;
+    }
+}
