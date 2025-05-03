@@ -4,15 +4,25 @@
  */
 package com.bookstore.bookstore.model;
 
+import javax.validation.constraints.*;
 /**
  *
  * @author ASUS
  */
 public class Customer {
     private int id;
+    
+    @NotBlank(message = "First name is required")
     private String firstName;
+    
+    @NotBlank(message = "Last name is required")
     private String lastName;
+    
+    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email is required")
     private String email;
+    
+    @Size(min = 6, message = "Password should be at least 6 characters")
     private String password;
 
     public Customer() {}
