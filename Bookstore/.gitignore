@@ -1,0 +1,53 @@
+# Compiled class files
+*.class
+
+# NetBeans specific
+/nbproject/private/
+/build/
+nbproject/build-Imp.XML
+nbbuild/
+dist/
+nudist/
+.nb-gradle/
+
+# Maven
+target/
+
+# Log files
+*.log
+
+# OS generated files
+Thumbs.db
+
+# Temporary files
+*.bak
+*.tmp
+
+# IDE configuration files
+*.iml
+.idea/
+
+# Jersey/JAX-RS build artifacts
+*.war
+*.ear
+*.jar
+
+# Local configuration
+config/local.yml
+config/local.json
+
+# Test output
+/test-results/
+
+# Generated documentation
+/doc/
+apidocs/
+
+# Dependency caches
+*.cache
+
+# Jersey temp files
+*.jersey
+
+# NetBeans profiler
+nbprofiler/
